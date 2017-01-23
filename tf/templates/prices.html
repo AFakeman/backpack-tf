@@ -1,0 +1,89 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="{{css}}" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="apple-touch-icon-precomposed" href="favicon-apple.png"/>
+    <title>Prices Browser</title>
+    <script type="text/javascript">
+    function getXMLHTTP() {
+           var x = false;
+           try {
+              x = new XMLHttpRequest();
+           }catch(e) {
+             try {
+                x = new ActiveXObject("Microsoft.XMLHTTP");
+             }catch(ex) {
+                try {
+                    req = new ActiveXObject("Msxml2.XMLHTTP");
+                }
+                catch(e1) {
+                    x = false;
+                }
+             }
+          }
+          return x;
+        };
+    function Check(name) {
+            document.getElementById('response').innerHTML = '<figure style="padding:0 3em;overflow:visible;"><div class="spinner"></div></figure>'
+            var xmlhttp = getXMLHTTP()
+            var params = "name="+name
+            xmlhttp.open('POST', '/getprice/', true);
+            xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xmlhttp.setRequestHeader("Content-length", params.length);
+            xmlhttp.setRequestHeader("Connection", "close");
+            xmlhttp.onreadystatechange = function() {
+                if (xmlhttp.readyState == 4) {
+                    if(xmlhttp.status == 200) {
+                        document.getElementById('response').innerHTML = xmlhttp.responseText;
+                    } else {
+                        document.getElementById('response').innerHTML = ''
+                        alert('Error '+xmlhttp.status.toString)
+                    }
+                }
+            };
+            xmlhttp.send(params);
+        };
+    </script>
+</head>
+<body>
+    <div class='wrap'>
+        <div class='frame'>
+            <div class='list'>
+                <br>
+                <h1>Quick access:</h1>
+                </br>
+                <h3><a href='76561198005570610'><font color='FDDE09'>AFakeman</font></a></h3> 
+                <h3><a href='76561198001046407'><font color='FDDE09'>Cap'n Gibus</font></a></h3>    
+                <h3><a href='76561198040538055'><font color='FDDE09'>Anthrax</font></a></h3>
+                <h3><a href='76561198058309861'><font color='FDDE09'>MA2KU</font></a></h3>
+                <h3><a href='76561198077461790'><font color='FDDE09'>!KNOB</font></a></h3>
+                <h3><a href='76561198122520161'><font color='FDDE09'>giantbummer</font></a></h3>
+                <h3><a href='76561198122539191'><font color='FDDE09'>notgaben</font></a></h3>
+                <h3><a href='76561198122624925'><font color='FDDE09'>notgaben1</font></a></h3>
+                <h3><a href='76561198122661920'><font color='FDDE09'>notgaben2</font></a></h3>
+            </div>
+        </div>
+        <div class='frame'>
+            <div class='list'>
+                <br>
+                <h1><a href='{{url_for('hello')}}'><font color = "FDDE09">Price Browser</font></a></h1>
+                <br>
+                <form method='post'>
+                    <input type='text' placeholder='Item name' name='item'>
+                </form>
+            </div>  
+        </div>
+        <div class='frame'>
+            <div class='list'>
+                <br>
+                <h1>Summary</h1>
+                <br>
+                <h2>Total inventory price: {{price}} metal</h2>
+            </div>
+        </div>
+    </div>
+<div id = 'response'>
+</div>
+</body>
+</html>

@@ -1,0 +1,207 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='main.css')}}" />
+    <link rel="icon" type="image/png" href="{{url_for('static', filename='favicon.png')}}" />
+    <link rel="apple-touch-icon-precomposed" href="{{url_for('static', filename='favicon-apple.png')}}"/>
+    <title>Inventory Browser</title>
+    <script type="text/javascript">
+        function getXMLHTTP() {
+           var x = false;
+           try {
+              x = new XMLHttpRequest();
+           }catch(e) {
+             try {
+                x = new ActiveXObject("Microsoft.XMLHTTP");
+             }catch(ex) {
+                try {
+                    req = new ActiveXObject("Msxml2.XMLHTTP");
+                }
+                catch(e1) {
+                    x = false;
+                }
+             }
+          }
+          return x;
+        };
+
+        function List(id) {
+            document.getElementById('response').innerHTML = '<figure style="padding:0 3em;overflow:visible;"><div class="spinner"></div></figure>'
+            var xmlhttp = getXMLHTTP()
+            xmlhttp.open('GET', '/list/'+id, true);
+            xmlhttp.onreadystatechange = function() {
+                if (xmlhttp.readyState == 4) {
+                    if(xmlhttp.status == 200) {
+                        document.getElementById('response').innerHTML = xmlhttp.responseText;
+                    } else {
+                        document.getElementById('response').innerHTML = '';
+                        alert('Error '+xmlhttp.status.toString());
+                    }
+                }
+            };
+            xmlhttp.send(null);
+        };
+
+        function renderContacts() {
+            var storage = JSON.parse(localStorage["Contacts"]);
+            var contacts = document.getElementById('contacts');
+            var title = document.createElement('h1');
+            title.innerHTML = 'Quick Access';
+            contacts.innerHTML='';
+            contacts.appendChild(document.createElement('br'));
+            contacts.appendChild(title);
+            contacts.appendChild(document.createElement('br'));
+
+            for(var i=0; i<storage.length; i++) {
+                var addButton = document.getElementById('addButton');
+                var container = document.createElement('h3');
+                var link = document.createElement('a');
+                var deleteLink = document.createElement('a')
+                var font = document.createElement('font');
+                var name = storage[i][0];
+                var id = storage[i][1];
+                font.color='FDDE09';
+                deleteLink.innerHTML='x ';
+                link.tf=id;
+                deleteLink.index=i;
+                deleteLink.onclick = function(){
+                    deleteContact(this.index);
+                    renderContacts();
+                    return false;
+                }
+                link.innerHTML=name;
+                link.onclick = function(){
+                    List(this.tf);
+                    return false;
+                };
+                font.appendChild(deleteLink)
+                font.appendChild(link);
+                container.appendChild(font);
+                contacts.appendChild(container);
+            };
+
+            var addButton = document.createElement('button');
+            addButton.innerHTML = 'Add someone';
+            addButton.id = 'addButton'
+            addButton.onclick = function(){
+                addContact();
+                return false;
+            }
+            contacts.appendChild(addButton);
+        };
+
+        function appendContact(name,id) {
+            var storage = JSON.parse(localStorage["Contacts"]);
+            storage.push([name,id]);
+            localStorage["Contacts"]=JSON.stringify(storage);
+        };
+
+        function addContact() {
+            var contacts = document.getElementById('contacts');
+            var storage = JSON.parse(localStorage["Contacts"]);
+            var form = document.createElement('form');
+            var idInput= document.createElement('input');
+            var nameInput = document.createElement('input');
+            var submitButton = document.createElement('button');
+            var addButton = document.getElementById('addButton');
+            addButton.style.visibility = 'hidden';
+            form.name='contactForm';
+            idInput.name='idInput';
+            idInput.placeholder="Steam id";
+            nameInput.name='nameInput';
+            nameInput.placeholder="Name";
+            submitButton.name="submitButton";
+            submitButton.innerHTML="Add";
+            submitButton.onclick = function(){
+                form.addName();
+                return false;
+            };
+            form.addName = function(){
+                var success = true;
+                try{
+                    if (this.nameInput.value){
+                        var id = this.idInput.value;
+                    } else {
+                        throw new Error("Invalid id");
+                    }
+
+                    if (this.nameInput.value){
+                        var name = this.nameInput.value;
+                    } else {
+                        throw new Error("Invalid name");
+                    }
+                } catch(e) {
+                    alert("Invalid id or name");
+                    success = false;
+                };
+                if (success){
+                    appendContact(name,id);
+                    addButton.style.visibility = 'visible';
+                    this.parentNode.removeChild(this);
+                    renderContacts();
+                };
+                return false;
+            };
+            form.appendChild(nameInput);
+            form.appendChild(idInput);
+            form.appendChild(document.createElement('br'))
+            form.appendChild(submitButton);
+            contacts.appendChild(form);
+        };
+
+        function deleteContact(pos) {
+            var storage = JSON.parse(localStorage["Contacts"]);
+            if (pos>0){
+                storage.splice(pos,pos);
+            } else {
+                storage.splice(0,1);
+            }
+            localStorage["Contacts"] = JSON.stringify(storage);
+        }
+
+        function storageInit(){
+            var storage = localStorage["Contacts"];
+            if (!storage ){
+                storage = [];
+                localStorage["Contacts"] = JSON.stringify(storage);
+
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class='wrap'>
+        <div class='frame'>
+            <div class='list' id='contacts'>
+                <script type='text/javascript'>
+                    storageInit();
+                    renderContacts();
+                </script>
+            </div>
+        </div>
+        <div class='frame'>
+            <div class='list'>
+                <br>
+                <h1><a href='{{url_for('front_page')}}'><font color = "FDDE09">Inventory Viewer</font></a></h1>
+                <br>
+                <form name = 'form' onsubmit="List(document.forms['form'].inputbox.value); return false;" method='post'>
+                    <input type='text' placeholder='64bit SteamID' name='inputbox'>
+                </form>
+            </div>
+        </div>
+        <div class='frame'>
+            <div class='list' id='summarize'>
+                <br>
+                <h1>Credits</h1>
+                <br>
+                <h2>Prices given by <a href='http://backpack.tf'>backpack.tf</a></h2>
+                <h2>Inventory data by <a href='https://developer.valvesoftware.com/wiki/Steam_Web_API'>Steam Web Api</a></h2>
+            </div>
+        </div>
+    </div>
+    <div id = 'response'>
+    </div>
+</body>
+</html>
