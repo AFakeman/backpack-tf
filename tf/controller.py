@@ -1,5 +1,6 @@
 from . import database
 from . import Steam
+import time
 
 killstreak = {
     1: "Killstreak",
@@ -55,7 +56,13 @@ qcolor={
 }
 
 def get_items(id):
-    return process_inventory(Steam.fetch_items(id)["result"]["items"])
+    before = time.time()
+    items = Steam.get_items(id=id)["result"]["items"]
+    after = time.time()
+    proc_items = process_inventory(items)
+    after2 = time.time()
+    print("Downloading: {0}, processing: {1}".format(after - before, after2 - after))
+    return proc_items
 
 def process_inventory(inventory):
     processed = []
@@ -98,7 +105,7 @@ def process_inventory(inventory):
         crate = None
         effect = 0
         meta = 0
-
+        strange_counters = [{}, {}, {}]
         if 'attributes' in item.keys():
             for attr in item['attributes']:
                 attr_def = attr["defindex"]
@@ -117,15 +124,26 @@ def process_inventory(inventory):
                     paint = attr["float_value"]
                 elif attr_def == 214:
                     kills = attr["value"]
-                elif (attr_def == 2005 or attr_def == 2006) and attr["is_output"]:
+                elif (attr_def == 2005 or attr_def == 2006 or attr_def == 2007) and attr["is_output"]:
                     for sub_attr in attr['attributes']:
                         if sub_attr["defindex"] == 2012:
                             fabricates = database.get_name(sub_attr["float_value"])
+                elif attr_def == 379:
+                    strange_counters[0]["value"] = attr["value"]
+                elif attr_def == 381:
+                    strange_counters[1]["value"] = attr["value"]
+                elif attr_def == 383:
+                    strange_counters[2]["value"] = attr["value"]
+                elif attr_def == 380:
+                    strange_counters[0]["name"] = database.get_eater(attr["float_value"])
+                elif attr_def == 382:
+                    strange_counters[1]["name"] = database.get_eater(attr["float_value"])
+                elif attr_def == 384:
+                    strange_counters[2]["name"] = database.get_eater(attr["float_value"])
 
         if crate:
             unit['crate'] = crate
             meta = crate
-            print("Crate id {0}, number {1}".format(unit['defindex'], meta))
 
         if effect:
             unit['effect'] = database.get_effect_name(effect)
@@ -157,6 +175,9 @@ def process_inventory(inventory):
 
         if fabricates:
             unit['fabricate'] = fabricates
+
+        if unit['quality'] == 11:
+            unit['kill_eaters'] = strange_counters
 
         processed.append(unit)
 

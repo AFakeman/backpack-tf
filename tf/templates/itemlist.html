@@ -34,6 +34,11 @@
         <h3>Craftable: {{item.craftable}}</h3>
         {% if item.strange %}
             <h3> Strange score: {{item.strange}}</h3>
+            {% for counter in item.kill_eaters %}
+                {% if counter %}
+                    <h3>{{ counter.name }}: {{ counter.value }}</h3>
+                {% endif %}
+            {% endfor %}
         {% endif %}
         {% if item.custom_desc %}
             <h3>Custom description: {{item.custom_desc}}</h3>

@@ -1,5 +1,6 @@
 from . import db, Backpack, Steam
-from .models import Item, Item_name, Effect
+from .models import Item, Item_name, Effect, Kill_eater
+import time
 
 def update_prices():
     names = {}
@@ -21,8 +22,7 @@ def update_prices():
                                 new_item = Item(defindex=defindex, quality=quality, craftable=is_craft,
                                                 tradeable=is_trade, item_metadata=priceindex, currency=currency,
                                                 price=price, price_high=price, name=name)
-                                db.session.add(new_item)
-                                db.session.commit()
+                                new_item = db.session.merge(new_item)
                     else:
                         for item6 in item5:
                             priceindex = 0
@@ -36,7 +36,7 @@ def update_prices():
                                 new_item = Item(defindex=defindex, quality=quality, craftable=is_craft,
                                                 tradeable=is_trade, item_metadata=priceindex, currency=currency,
                                                 price=price, price_high=price, name=name)
-                                db.session.add(new_item)
+                                new_item = db.session.merge(new_item)
     db.session.commit()
 
 def update_names():
@@ -51,6 +51,13 @@ def update_effects():
     for effect in schema["result"]["attribute_controlled_attached_particles"]:
         new_effect = Effect(id=effect["id"], name=effect["name"])
         db.session.add(new_effect)
+    db.session.commit()
+
+def update_kill_eaters():
+    schema = Steam.get_schema()
+    for kill_eater in schema["result"]["kill_eater_score_types"]:
+        new_eater = Kill_eater(type=kill_eater["type"], name=kill_eater["type_name"])
+        db.session.add(new_eater)
     db.session.commit()
 
 def get_name(defindex):
@@ -73,6 +80,13 @@ def get_effect_name(id):
         return str(id)
     else:
         return effect.name
+
+def get_eater(type):
+    eater = Kill_eater.query.filter_by(type=type).first()
+    if not eater:
+        return str(id)
+    else:
+        return eater.name
 
 def get_price(defindex, name=None, quality=6, craftable=True, tradable=True, metadata=0):
     if name:

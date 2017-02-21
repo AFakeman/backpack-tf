@@ -22,3 +22,8 @@ class Effect(db.Model):
     __tablename__ = "effects"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(140))
+
+class Kill_eater(db.Model):
+    __tablename__ = "kill_eaters"
+    type = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(140))

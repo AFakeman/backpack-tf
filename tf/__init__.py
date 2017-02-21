@@ -1,13 +1,15 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from . import backpack
+
+from . import __file__ as kek
 
 app = Flask(__name__)
-app.config.from_pyfile('config.py')
+app.config.from_object(__name__ + ".default_config")
 db = SQLAlchemy(app)
 
-from . import backpack
-Steam = backpack.Steam(app.config['STEAM_API_KEY'])
-Backpack = backpack.Backpack(app.config['BACKPACK_API_KEY'], local=True)
+Steam = backpack.Steam(api=app.config['STEAM_API_KEY'], host=app.config['WEBAPI_HOST'], port=app.config['WEBAPI_PORT'])
+Backpack = backpack.Backpack(api=app.config['BACKPACK_API_KEY'], host=app.config['WEBAPI_HOST'], port=app.config['WEBAPI_PORT'])
 
 from . import views
 from . import models
