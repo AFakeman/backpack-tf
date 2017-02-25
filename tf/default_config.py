@@ -1,0 +1,7 @@
+import os
+
+SQLALCHEMY_DATABASE_URI = 'sqlite:///test.db'
+WEBAPI_HOST = "webapi"
+WEBAPI_PORT = 5555
+SQLALCHEMY_TRACK_MODIFICATIONS = False
+WORKING_DIR = os.getcwd()
