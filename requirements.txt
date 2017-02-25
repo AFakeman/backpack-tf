@@ -1,4 +1,5 @@
 Flask>=0.10.1
 Flask-SQLAlchemy>=2.0
 gunicorn
+psycopg2
 https://github.com/AFakeman/webapi/archive/master.zip
