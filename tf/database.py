@@ -19,9 +19,9 @@ def update_prices():
                                 currency = item6['currency']
                                 price = item6['value']
                                 price_high = price if not 'value_high' in item6.keys() else item6['value_high']
-                                new_item = Item(defindex=defindex, quality=quality, craftable=is_craft,
-                                                tradeable=is_trade, item_metadata=priceindex, currency=currency,
-                                                price=price, price_high=price, name=name)
+                                new_item = Item(defindex=int(defindex), quality=int(quality), craftable=bool(is_craft),
+                                                tradeable=bool(is_trade), item_metadata=str(priceindex), currency=str(currency),
+                                                price=float(price if price else 0), price_high=float(price_high if price_high else 0), name=str(name))
                                 new_item = db.session.merge(new_item)
                     else:
                         for item6 in item5:
@@ -33,16 +33,24 @@ def update_prices():
                                 currency = item6['currency']
                                 price = item6['value']
                                 price_high = price if not 'value_high' in item6.keys() else item6['value_high']
-                                new_item = Item(defindex=defindex, quality=quality, craftable=is_craft,
-                                                tradeable=is_trade, item_metadata=priceindex, currency=currency,
-                                                price=price, price_high=price, name=name)
+                                new_item = Item(defindex=int(defindex), quality=int(quality), craftable=bool(is_craft),
+                                                tradeable=bool(is_trade), item_metadata=str(priceindex), currency=str(currency),
+                                                price=float(price if price else 0), price_high=float(price_high if price_high else 0), name=str(name))
                                 new_item = db.session.merge(new_item)
     db.session.commit()
 
 def update_names():
     schema = Steam.get_schema()
+    name_limit = Item_name.name.property.columns[0].type.length
+    url_limit = Item_name.url.property.columns[0].type.length
     for item in schema["result"]["items"]:
-        new_item = Item_name(defindex=item["defindex"], name=item["item_name"], url=item["image_url_large"])
+        name=item["item_name"]
+        url=item["image_url_large"]
+        if name:
+            name = name[:name_limit]
+        if url:
+            url = url[:name_limit]
+        new_item = Item_name(defindex=item["defindex"], name=name, url=url)
         db.session.add(new_item)
     db.session.commit()
 
@@ -61,28 +69,28 @@ def update_kill_eaters():
     db.session.commit()
 
 def get_name(defindex):
-    item = Item_name.query.filter_by(defindex=defindex).first()
+    item = Item_name.query.filter_by(defindex=int(defindex)).first()
     if not item:
         return "MISSINGNO"
     else:
         return item.name
 
 def get_name_img(defindex):
-    item = Item_name.query.filter_by(defindex=defindex).first()
+    item = Item_name.query.filter_by(defindex=int(defindex)).first()
     if not item:
         return "MISSINGNO", ""
     else:
         return item.name, item.url
 
 def get_effect_name(id):
-    effect = Effect.query.filter_by(id=id).first()
+    effect = Effect.query.filter_by(id=int(id)).first()
     if not effect:
         return str(id)
     else:
         return effect.name
 
 def get_eater(type):
-    eater = Kill_eater.query.filter_by(type=type).first()
+    eater = Kill_eater.query.filter_by(type=int(type)).first()
     if not eater:
         return str(id)
     else:
@@ -90,11 +98,11 @@ def get_eater(type):
 
 def get_price(defindex, name=None, quality=6, craftable=True, tradable=True, metadata=0):
     if name:
-        item = Item.query.filter_by(defindex=defindex, name=name, quality=quality,
-                             craftable=craftable, tradeable=tradable, item_metadata=metadata).first()
+        item = Item.query.filter_by(defindex=int(defindex), name=str(name), quality=int(quality),
+                                    craftable=bool(craftable), tradeable=bool(tradable), item_metadata=str(metadata)).first()
     else:
-        item = Item.query.filter_by(defindex=defindex, quality=quality,
-                                    craftable=craftable, tradeable=tradable, item_metadata=metadata).first()
+        item = Item.query.filter_by(defindex=int(defindex), quality=int(quality),
+                                    craftable=bool(craftable), tradeable=bool(tradable), item_metadata=str(metadata)).first()
     if item:
         return item.price, item.currency
     else:

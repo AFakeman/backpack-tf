@@ -16,7 +16,7 @@ class Item_name(db.Model):
     __tablename__ = "item_names"
     defindex = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(140))
-    url = db.Column(db.String(140))
+    url = db.Column(db.String(210))
 
 class Effect(db.Model):
     __tablename__ = "effects"
