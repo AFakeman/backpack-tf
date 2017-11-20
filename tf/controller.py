@@ -40,20 +40,21 @@ paints = {
     0xa89a8c: "Waterlogged Lab Coat",
 }
 
-qcolor={
-    0:"B2B2B2",
-    1:"4D7455",
-    2:"8D834B",
-    3:"476291",
-    5:"8650AC",
-    6:"FFD700",
-    7:"70B04A",
-    8:"A50F79",
-    9:"70B04A",
-    11:"CF6A32",
-    13:"38F3AB",
-    14:"AA0000",
+qcolor = {
+    0: "B2B2B2",
+    1: "4D7455",
+    2: "8D834B",
+    3: "476291",
+    5: "8650AC",
+    6: "FFD700",
+    7: "70B04A",
+    8: "A50F79",
+    9: "70B04A",
+    11: "CF6A32",
+    13: "38F3AB",
+    14: "AA0000",
 }
+
 
 def get_items(id):
     before = time.time()
@@ -61,11 +62,14 @@ def get_items(id):
     after = time.time()
     proc_items = process_inventory(items)
     after2 = time.time()
-    print("Downloading: {0}, processing: {1}".format(after - before, after2 - after))
+    print("Downloading: {0}, processing: {1}".format(
+        after - before, after2 - after))
     return proc_items
+
 
 def process_inventory(inventory):
     processed = []
+
     for item in inventory:
         unit = {}
         unit['quality'] = item['quality']
@@ -106,10 +110,11 @@ def process_inventory(inventory):
         effect = 0
         meta = 0
         strange_counters = [{}, {}, {}]
+
         if 'attributes' in item.keys():
             for attr in item['attributes']:
                 attr_def = attr["defindex"]
-                if attr_def == 2012: #what should the tool be applied to
+                if attr_def == 2012:  # what should the tool be applied to
                     target_defindex = attr["float_value"]
                     target_name = database.get_name(target_defindex)
                 elif attr_def == 2027:
@@ -124,10 +129,12 @@ def process_inventory(inventory):
                     paint = attr["float_value"]
                 elif attr_def == 214:
                     kills = attr["value"]
-                elif (attr_def == 2005 or attr_def == 2006 or attr_def == 2007) and attr["is_output"]:
+                elif (attr_def == 2005 or attr_def == 2006 or attr_def == 2007) 
+                     and attr["is_output"]:
                     for sub_attr in attr['attributes']:
                         if sub_attr["defindex"] == 2012:
-                            fabricates = database.get_name(sub_attr["float_value"])
+                            fabricates = database.get_name(
+                                sub_attr["float_value"])
                 elif attr_def == 379:
                     strange_counters[0]["value"] = attr["value"]
                 elif attr_def == 381:
@@ -135,11 +142,14 @@ def process_inventory(inventory):
                 elif attr_def == 383:
                     strange_counters[2]["value"] = attr["value"]
                 elif attr_def == 380:
-                    strange_counters[0]["name"] = database.get_eater(attr["float_value"])
+                    strange_counters[0]["name"] = database.get_eater(
+                        attr["float_value"])
                 elif attr_def == 382:
-                    strange_counters[1]["name"] = database.get_eater(attr["float_value"])
+                    strange_counters[1]["name"] = database.get_eater(
+                        attr["float_value"])
                 elif attr_def == 384:
-                    strange_counters[2]["name"] = database.get_eater(attr["float_value"])
+                    strange_counters[2]["name"] = database.get_eater(
+                        attr["float_value"])
 
         if crate:
             unit['crate'] = crate
@@ -167,8 +177,14 @@ def process_inventory(inventory):
         if australium:
             unit['name'] = "Australium {0}".format(unit['name'])
 
-        unit["price"], unit["currency"] = database.get_price(defindex = unit["defindex"], name = unit["name"], quality=unit["quality"],
-                                   craftable = unit["craftable"], tradable = unit["tradable"], metadata=meta)
+        unit["price"], unit["currency"] = database.get_price(
+            defindex=unit["defindex"], 
+            name=unit["name"], 
+            quality=unit["quality"],
+            craftable=unit["craftable"], 
+            tradable=unit["tradable"], 
+            metadata=meta
+        )
 
         if kstreak:
             unit['name'] = "{0} {1}".format(killstreak[kstreak], unit['name'])
